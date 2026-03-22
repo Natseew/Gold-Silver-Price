@@ -280,9 +280,146 @@
       margin-top: 16px;
     }
     #last-updated { color: var(--neutral); }
+
+    /* ── MONEY RAIN CANVAS ── */
+    #rain-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      /* stops just above the 90px banner */
+      height: calc(100% - 90px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* lift all page content above the canvas */
+    header, .section-label, .grid, .refresh-wrap, .timestamp {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── SPONSORED BANNER ── */
+    body { padding-bottom: 110px; } /* make room for fixed banner */
+
+    .sponsor-banner {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 90px;
+      background: #0d0d0d;
+      border-top: 1px solid #2a2a2a;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      z-index: 999;
+    }
+
+    .sponsor-banner::before,
+    .sponsor-banner::after {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 80px;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .sponsor-banner::before {
+      left: 0;
+      background: linear-gradient(90deg, #0d0d0d, transparent);
+    }
+    .sponsor-banner::after {
+      right: 0;
+      background: linear-gradient(270deg, #0d0d0d, transparent);
+    }
+
+    .banner-gif {
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+
+    .banner-gif img {
+      height: 80px;
+      width: auto;
+      flex-shrink: 0;
+      object-fit: cover;
+      image-rendering: auto;
+      /* tile the gif horizontally */
+      position: absolute;
+      top: 5px;
+    }
+
+    /* multiple gif copies tiled */
+    .gif-tile {
+      position: absolute;
+      top: 5px;
+      height: 78px;
+      width: auto;
+    }
+
+    /* scrolling text track */
+    .banner-track {
+      display: flex;
+      white-space: nowrap;
+      animation: banner-scroll 18s linear infinite;
+      position: relative;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    @keyframes banner-scroll {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    .banner-text-unit {
+      display: inline-flex;
+      align-items: center;
+      gap: 20px;
+      padding-right: 60px;
+    }
+
+    .banner-coin {
+      font-size: 1.1rem;
+      animation: spin-coin 1s linear infinite;
+      display: inline-block;
+    }
+    @keyframes spin-coin {
+      0%   { transform: rotateY(0deg); }
+      100% { transform: rotateY(360deg); }
+    }
+
+    .banner-main-text {
+      font-family: var(--display);
+      font-size: 1.6rem;
+      letter-spacing: 0.15em;
+      color: var(--gold);
+      text-shadow: 0 0 18px #c9a84c88, 0 0 40px #c9a84c33;
+    }
+
+    .banner-sub-text {
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      align-self: flex-end;
+      padding-bottom: 4px;
+    }
+
+    .banner-disclaimer {
+      font-family: var(--mono);
+      font-size: 0.55rem;
+      color: #333;
+      letter-spacing: 0.1em;
+    }
   </style>
 </head>
 <body>
+
+<canvas id="rain-canvas"></canvas>
 
 <header>
   <h1>Metal Prices</h1>
@@ -460,7 +597,172 @@
     }
   }
 
+  // ═══════════════════════════════════
+  // MONEY RAIN
+  // ═══════════════════════════════════
+  (function () {
+    const canvas = document.getElementById('rain-canvas');
+    const ctx    = canvas.getContext('2d');
+    const BANNER_H = 90;
+
+    const SYMBOLS = [
+      '💵','💴','💶','💷',   // banknotes
+      '🪙','💰','💸',        // coins / bags / flying cash
+      '₿','Ξ','◎','✕',       // crypto: BTC, ETH, SOL, XRP-ish
+      '💎','🏦',             // bonus gems + bank
+    ];
+
+    // weighted pool — cash & coins appear more often
+    const POOL = [];
+    ['💵','💵','💵','💴','💶','🪙','🪙','💸','💸','💰',
+     '₿','₿','Ξ','Ξ','◎','✕','💎','🏦'].forEach(s => POOL.push(s));
+
+    let W, H, drops;
+
+    function resize() {
+      W = canvas.width  = window.innerWidth;
+      H = canvas.height = window.innerHeight - BANNER_H;
+    }
+
+    function randomDrop() {
+      const size = 14 + Math.random() * 22;          // 14–36px
+      return {
+        x:       Math.random() * W,
+        y:       -size - Math.random() * H,           // start above viewport
+        vy:      1.2 + Math.random() * 3.5,           // fall speed
+        vx:      (Math.random() - 0.5) * 0.6,         // slight drift
+        rot:     Math.random() * Math.PI * 2,
+        vrot:    (Math.random() - 0.5) * 0.06,
+        size,
+        symbol:  POOL[Math.floor(Math.random() * POOL.length)],
+        opacity: 0.18 + Math.random() * 0.32,         // subtle — 18–50%
+        wobble:  Math.random() * Math.PI * 2,
+        wobbleSpeed: 0.02 + Math.random() * 0.03,
+      };
+    }
+
+    function initDrops() {
+      const count = Math.floor(W / 14);              // ~density
+      drops = Array.from({ length: count }, () => {
+        const d = randomDrop();
+        d.y = Math.random() * H;                     // scatter on first load
+        return d;
+      });
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+
+      for (const d of drops) {
+        // wobble side-to-side
+        d.wobble += d.wobbleSpeed;
+        d.x  += d.vx + Math.sin(d.wobble) * 0.4;
+        d.y  += d.vy;
+        d.rot += d.vrot;
+
+        // recycle when off-screen
+        if (d.y > H + d.size * 2) {
+          Object.assign(d, randomDrop());
+        }
+        if (d.x < -d.size * 2)  d.x = W + d.size;
+        if (d.x > W + d.size * 2) d.x = -d.size;
+
+        ctx.save();
+        ctx.globalAlpha = d.opacity;
+        ctx.translate(d.x, d.y);
+        ctx.rotate(d.rot);
+        ctx.font = `${d.size}px serif`;
+        ctx.textAlign    = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(d.symbol, 0, 0);
+        ctx.restore();
+      }
+
+      requestAnimationFrame(draw);
+    }
+
+    resize();
+    initDrops();
+    draw();
+    window.addEventListener('resize', () => { resize(); initDrops(); });
+  })();
+
   loadData();
 </script>
+
+<!-- ═══ SPONSORED BANNER ═══ -->
+<div class="sponsor-banner">
+
+  <!-- tiled gif background -->
+  <img class="gif-tile" style="left:-10px"  src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
+  <img class="gif-tile" style="left:90px"   src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
+  <img class="gif-tile" style="left:190px"  src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
+  <img class="gif-tile" style="left:290px"  src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
+  <img class="gif-tile" style="left:390px"  src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
+  <img class="gif-tile" style="left:490px"  src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
+  <img class="gif-tile" style="left:590px"  src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
+  <img class="gif-tile" style="left:690px"  src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
+  <img class="gif-tile" style="left:790px"  src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
+  <img class="gif-tile" style="left:890px"  src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
+  <img class="gif-tile" style="left:990px"  src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
+  <img class="gif-tile" style="left:1090px" src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
+  <img class="gif-tile" style="left:1190px" src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
+  <img class="gif-tile" style="left:1290px" src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
+  <img class="gif-tile" style="left:1390px" src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
+  <img class="gif-tile" style="left:1490px" src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
+  <img class="gif-tile" style="left:1590px" src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
+  <img class="gif-tile" style="left:1690px" src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
+  <img class="gif-tile" style="left:1790px" src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
+
+  <!-- scrolling text — duplicated so it loops seamlessly -->
+  <div class="banner-track">
+    <!-- first copy -->
+    <span class="banner-text-unit">
+      <span class="banner-coin">🪙</span>
+      <span class="banner-main-text">SPONSORED BY NATHANIEL</span>
+      <span class="banner-sub-text">the guy who definitely knows about gold</span>
+      <span class="banner-disclaimer">· not financial advice · not Nathaniel's money · results may vary ·</span>
+      <span class="banner-coin">💸</span>
+    </span>
+    <span class="banner-text-unit">
+      <span class="banner-coin">🤑</span>
+      <span class="banner-main-text">NATHANIEL PAID FOR THIS*</span>
+      <span class="banner-sub-text">*he did not pay for this</span>
+      <span class="banner-disclaimer">· past performance ≠ future gains · Nathaniel is not a bank · please don't sue ·</span>
+      <span class="banner-coin">🪙</span>
+    </span>
+    <span class="banner-text-unit">
+      <span class="banner-coin">💰</span>
+      <span class="banner-main-text">THANKS NATHANIEL. VERY COOL.</span>
+      <span class="banner-sub-text">truly a visionary of our time</span>
+      <span class="banner-disclaimer">· 0 sloths were harmed · Nathaniel eats well · may contain traces of hubris ·</span>
+      <span class="banner-coin">🤑</span>
+    </span>
+    <!-- second copy (seamless loop) -->
+    <span class="banner-text-unit">
+      <span class="banner-coin">🪙</span>
+      <span class="banner-main-text">SPONSORED BY NATHANIEL</span>
+      <span class="banner-sub-text">the guy who definitely knows about gold</span>
+      <span class="banner-disclaimer">· not financial advice · not Nathaniel's money · results may vary ·</span>
+      <span class="banner-coin">💸</span>
+    </span>
+    <span class="banner-text-unit">
+      <span class="banner-coin">🤑</span>
+      <span class="banner-main-text">NATHANIEL PAID FOR THIS*</span>
+      <span class="banner-sub-text">*he did not pay for this</span>
+      <span class="banner-disclaimer">· past performance ≠ future gains · Nathaniel is not a bank · please don't sue ·</span>
+      <span class="banner-coin">🪙</span>
+    </span>
+    <span class="banner-text-unit">
+      <span class="banner-coin">💰</span>
+      <span class="banner-main-text">THANKS NATHANIEL. VERY COOL.</span>
+      <span class="banner-sub-text">truly a visionary of our time</span>
+      <span class="banner-disclaimer">· 0 sloths were harmed · Nathaniel eats well · may contain traces of hubris ·</span>
+      <span class="banner-coin">🤑</span>
+    </span>
+  </div>
+
+</div>
+
 </body>
 </html>
