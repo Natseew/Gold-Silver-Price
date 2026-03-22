@@ -1,19 +1,49 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>API Demo</title>
+  <title>Metal Prices</title>
 </head>
 <body>
-  <h1>API Data</h1>
-  <button onclick="loadData()">Fetch Data</button>
-  <pre id="output"></pre>
+  <h1>Live Metal Prices in SGD</h1>
+
+  <div>
+    <h2>1 Oz Gold (XAU)</h2>
+    <p id="xau-price">Loading...</p>
+    <p id="xau-percent"></p>
+  </div>
+
+  <div>
+    <h2>1 Oz Silver (XAG)</h2>
+    <p id="xag-price">Loading...</p>
+    <p id="xag-percent"></p>
+  </div>
+
+  <button onclick="loadData()">Refresh</button>
 
   <script>
     async function loadData() {
-      const res = await fetch('https://jsonplaceholder.typicode.com/posts/1');
-      const data = await res.json();
-      document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+      try {
+        const res = await fetch('https://services.bullionstar.com/spot-chart/graph/get'); // <-- replace this
+        const data = await res.json();
+
+        // Extract values
+        const xau = data.spotPrices.XAU;
+        const xag = data.spotPrices.XAG;
+
+        // Update UI
+        document.getElementById('xau-price').textContent = xau.value;
+        document.getElementById('xau-percent').textContent = xau.percent;
+
+        document.getElementById('xag-price').textContent = xag.value;
+        document.getElementById('xag-percent').textContent = xag.percent;
+
+      } catch (err) {
+        console.error(err);
+      }
     }
+
+    // Load automatically on page load
+    loadData();
   </script>
 </body>
 </html>
