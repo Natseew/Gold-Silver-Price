@@ -18,32 +18,52 @@
     <p id="xag-percent"></p>
   </div>
 
+    <div>
+        <h2>1kg Silver</h2>
+        <p id="xag-latest">Loading...</p>
+    </div>
+
   <button onclick="loadData()">Refresh</button>
 
-  <script>
+    <script>
     async function loadData() {
-      try {
-        const res = await fetch('/api/prices'); // <-- replace this
-        const data = await res.json();
+        try {
+        // ===== 1. Spot prices =====
+        const res1 = await fetch('/api/prices');
+        const data1 = await res1.json();
 
-        // Extract values
-        const xau = data.spotPrices.XAU;
-        const xag = data.spotPrices.XAG;
+        if (data1.spotPrices?.XAU) {
+            document.getElementById('xau-price').textContent = data1.spotPrices.XAU.value;
+            document.getElementById('xau-percent').textContent = data1.spotPrices.XAU.percent;
+        }
 
-        // Update UI
-        document.getElementById('xau-price').textContent = xau.value;
-        document.getElementById('xau-percent').textContent = xau.percent;
+        if (data1.spotPrices?.XAG) {
+            document.getElementById('xag-price').textContent = data1.spotPrices.XAG.value;
+            document.getElementById('xag-percent').textContent = data1.spotPrices.XAG.percent;
+        }
 
-        document.getElementById('xag-price').textContent = xag.value;
-        document.getElementById('xag-percent').textContent = xag.percent;
+        // ===== 2. Silver dataSeries =====
+        const res2 = await fetch('/api/silver');
+        const data2 = await res2.json();
 
-      } catch (err) {
+        if (data2.dataSeries && data2.dataSeries.length > 0) {
+            const lastPoint = data2.dataSeries[data2.dataSeries.length - 1];
+            
+            const formatted = lastPoint.v.toLocaleString('en-SG', {
+            style: 'currency',
+            currency: 'SGD'
+            });
+
+            document.getElementById('xag-latest').textContent =
+            `Latest (1kg Silver): ${formatted}`;
+        }
+
+        } catch (err) {
         console.error(err);
-      }
+        }
     }
 
-    // Load automatically on page load
     loadData();
-  </script>
+    </script>
 </body>
 </html>
