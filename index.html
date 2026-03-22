@@ -4,21 +4,20 @@
   <title>Metal Prices</title>
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&display=swap" rel="stylesheet">
   <style>
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
       --bg: #0a0a0a;
       --bg-card: #111111;
+      --bg-subcard: #161616;
       --border: #222222;
       --border-glow: #3a3a3a;
       --gold: #c9a84c;
       --gold-dim: #7a5f28;
+      --gold-sub: #c9a84c18;
       --silver: #9ba8b4;
       --silver-dim: #4a5560;
+      --silver-sub: #9ba8b418;
       --positive: #22c55e;
       --negative: #ef4444;
       --neutral: #6b7280;
@@ -35,35 +34,17 @@
       min-height: 100vh;
       padding: 40px 24px 60px;
       background-image:
-        repeating-linear-gradient(
-          0deg,
-          transparent,
-          transparent 39px,
-          #ffffff04 39px,
-          #ffffff04 40px
-        ),
-        repeating-linear-gradient(
-          90deg,
-          transparent,
-          transparent 39px,
-          #ffffff03 39px,
-          #ffffff03 40px
-        );
+        repeating-linear-gradient(0deg, transparent, transparent 39px, #ffffff04 39px, #ffffff04 40px),
+        repeating-linear-gradient(90deg, transparent, transparent 39px, #ffffff03 39px, #ffffff03 40px);
     }
 
-    header {
-      text-align: center;
-      margin-bottom: 48px;
-    }
-
+    header { text-align: center; margin-bottom: 48px; }
     header h1 {
       font-family: var(--display);
       font-size: clamp(2.4rem, 6vw, 4rem);
       letter-spacing: 0.12em;
-      color: var(--text-primary);
       line-height: 1;
     }
-
     header .subtitle {
       font-size: 0.7rem;
       color: var(--text-muted);
@@ -71,161 +52,203 @@
       margin-top: 8px;
       text-transform: uppercase;
     }
-
     .ticker-bar {
-      width: 60px;
-      height: 2px;
+      width: 60px; height: 2px;
       background: linear-gradient(90deg, transparent, var(--gold), transparent);
       margin: 16px auto 0;
     }
 
+    .section-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      max-width: 1100px;
+      margin: 0 auto 10px;
+      padding-left: 2px;
+    }
+    .section-label.gold-label  { color: var(--gold-dim); }
+    .section-label.silver-label { color: var(--silver-dim); }
+
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
       gap: 16px;
-      max-width: 1000px;
-      margin: 0 auto 32px;
+      max-width: 1100px;
+      margin: 0 auto 12px;
     }
+    .grid-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+    .section-gap { margin-bottom: 32px; }
 
     .card {
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 2px;
-      padding: 28px 24px 24px;
+      padding: 24px 22px 20px;
       position: relative;
       overflow: hidden;
       transition: border-color 0.3s, box-shadow 0.3s;
     }
-
     .card::before {
       content: '';
       position: absolute;
       top: 0; left: 0; right: 0;
       height: 2px;
     }
-
-    .card:hover {
-      border-color: var(--border-glow);
-      box-shadow: 0 0 30px #ffffff06;
+    .card::after {
+      content: '';
+      position: absolute;
+      bottom: 10px; right: 10px;
+      width: 16px; height: 16px;
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      opacity: 0.4;
     }
-
-    .card.gold::before {
-      background: linear-gradient(90deg, transparent, var(--gold), transparent);
-    }
-
-    .card.silver::before {
-      background: linear-gradient(90deg, transparent, var(--silver), transparent);
-    }
+    .card:hover { border-color: var(--border-glow); box-shadow: 0 0 30px #ffffff06; }
+    .card.gold::before   { background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+    .card.silver::before { background: linear-gradient(90deg, transparent, var(--silver), transparent); }
 
     .card-tag {
-      font-size: 0.62rem;
+      font-size: 0.58rem;
       letter-spacing: 0.25em;
       text-transform: uppercase;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
-
-    .card.gold .card-tag { color: var(--gold-dim); }
+    .card.gold .card-tag   { color: var(--gold-dim); }
     .card.silver .card-tag { color: var(--silver-dim); }
 
     .card h2 {
       font-family: var(--display);
-      font-size: 1.5rem;
+      font-size: 1.4rem;
       letter-spacing: 0.1em;
-      color: var(--text-primary);
-      margin-bottom: 20px;
       line-height: 1;
+      margin-bottom: 16px;
     }
-
-    .card.gold h2 { color: var(--gold); }
+    .card.gold h2   { color: var(--gold); }
     .card.silver h2 { color: var(--silver); }
 
     .price-value {
-      font-size: 1.6rem;
-      font-weight: 400;
+      font-size: 1.5rem;
       color: var(--text-primary);
-      letter-spacing: 0.05em;
+      letter-spacing: 0.04em;
       line-height: 1;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
-
     .price-value.loading {
       color: var(--text-muted);
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       animation: pulse 1.5s ease-in-out infinite;
     }
-
     @keyframes pulse {
-      0%, 100% { opacity: 0.4; }
-      50% { opacity: 0.9; }
+      0%, 100% { opacity: 0.3; }
+      50%       { opacity: 0.8; }
     }
 
     .percent-badge {
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      font-size: 0.78rem;
-      letter-spacing: 0.08em;
-      padding: 3px 10px;
+      font-size: 0.75rem;
+      letter-spacing: 0.06em;
+      padding: 2px 9px;
       border-radius: 2px;
-      margin-top: 4px;
     }
+    .percent-badge.positive { color: var(--positive); background: #22c55e12; border: 1px solid #22c55e22; }
+    .percent-badge.negative { color: var(--negative); background: #ef444412; border: 1px solid #ef444422; }
+    .percent-badge.neutral  { color: var(--neutral);  background: #6b728012; border: 1px solid #6b728022; }
+    .percent-badge::before          { content: '▲'; font-size: 0.55rem; }
+    .percent-badge.negative::before { content: '▼'; }
+    .percent-badge.neutral::before  { content: '●'; }
 
-    .percent-badge.positive {
-      color: var(--positive);
-      background: #22c55e12;
-      border: 1px solid #22c55e22;
+    /* ── Sub-cards (row style) ── */
+    .subcards { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+
+    .subcard {
+      background: var(--bg-subcard);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
     }
+    .card.gold   .subcard { border-left: 2px solid var(--gold-dim); }
+    .card.silver .subcard { border-left: 2px solid var(--silver-dim); }
 
-    .percent-badge.negative {
-      color: var(--negative);
-      background: #ef444412;
-      border: 1px solid #ef444422;
-    }
-
-    .percent-badge.neutral {
-      color: var(--neutral);
-      background: #6b728012;
-      border: 1px solid #6b728022;
-    }
-
-    .percent-badge::before {
-      content: '▲';
-      font-size: 0.6rem;
-    }
-
-    .percent-badge.negative::before {
-      content: '▼';
-    }
-
-    .percent-badge.neutral::before {
-      content: '●';
-    }
-
-    .card-divider {
-      width: 100%;
-      height: 1px;
-      background: var(--border);
-      margin: 16px 0;
-    }
-
-    .card-label {
+    .subcard-label {
       font-size: 0.62rem;
-      color: var(--text-muted);
-      letter-spacing: 0.2em;
+      letter-spacing: 0.15em;
       text-transform: uppercase;
-      margin-bottom: 6px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      flex: 1;
+    }
+    .subcard-value {
+      font-size: 0.95rem;
+      color: var(--text-primary);
+      letter-spacing: 0.04em;
+      text-align: right;
+      white-space: nowrap;
+    }
+    .subcard-value.loading {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    .subcard-badge {
+      font-size: 0.56rem;
+      letter-spacing: 0.1em;
+      padding: 2px 6px;
+      border-radius: 2px;
+      white-space: nowrap;
+      margin-left: 8px;
+    }
+    .card.gold   .subcard-badge { color: var(--gold);   background: var(--gold-sub);   border: 1px solid var(--gold-dim); }
+    .card.silver .subcard-badge { color: var(--silver); background: var(--silver-sub); border: 1px solid var(--silver-dim); }
+
+    /* ── Markup tile grid (2-col) ── */
+    .markup-grid {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .markup-tile {
+      background: var(--bg-subcard);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 10px 12px;
+    }
+    .card.silver .markup-tile { border-left: 2px solid var(--silver-dim); }
+    .markup-tile-label {
+      font-size: 0.58rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+    }
+    .markup-tile-value {
+      font-size: 0.9rem;
+      color: var(--text-primary);
+      letter-spacing: 0.03em;
+    }
+    .markup-tile-value.loading {
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      animation: pulse 1.5s ease-in-out infinite;
     }
 
+    /* ── Footer ── */
     .refresh-wrap {
       display: flex;
       justify-content: center;
-      margin: 0 auto;
-      max-width: 1000px;
+      max-width: 1100px;
+      margin: 16px auto 0;
     }
-
     button {
       font-family: var(--mono);
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       letter-spacing: 0.25em;
       text-transform: uppercase;
       background: transparent;
@@ -238,162 +261,206 @@
       position: relative;
       overflow: hidden;
     }
-
     button::after {
       content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, #ffffff08 0%, transparent 60%);
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, #ffffff08, transparent 60%);
       opacity: 0;
       transition: opacity 0.25s;
     }
-
-    button:hover {
-      border-color: var(--border-glow);
-      color: var(--text-primary);
-    }
-
+    button:hover { border-color: var(--border-glow); color: var(--text-primary); }
     button:hover::after { opacity: 1; }
-
-    button:active {
-      transform: scale(0.98);
-    }
+    button:active { transform: scale(0.98); }
 
     .timestamp {
       text-align: center;
       font-size: 0.6rem;
       color: var(--text-muted);
       letter-spacing: 0.2em;
-      margin-top: 20px;
+      margin-top: 16px;
     }
-
     #last-updated { color: var(--neutral); }
-
-    /* Corner decorations */
-    .card::after {
-      content: '';
-      position: absolute;
-      bottom: 12px;
-      right: 12px;
-      width: 20px;
-      height: 20px;
-      border-right: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      opacity: 0.5;
-    }
   </style>
 </head>
 <body>
 
-  <header>
-    <h1>Metal Prices</h1>
-    <div class="subtitle">Live spot prices &nbsp;·&nbsp; SGD</div>
-    <div class="ticker-bar"></div>
-  </header>
+<header>
+  <h1>Metal Prices</h1>
+  <div class="subtitle">Live spot prices &nbsp;·&nbsp; SGD</div>
+  <div class="ticker-bar"></div>
+</header>
 
-  <div class="grid">
+<!-- ═══════ GOLD ═══════ -->
+<div class="section-label gold-label">Gold</div>
+<div class="grid grid-2 section-gap">
 
-    <!-- XAU -->
-    <div class="card gold">
-      <div class="card-tag">XAU &nbsp;·&nbsp; Precious Metal</div>
-      <h2>Gold &nbsp;/ 1 oz</h2>
-      <p id="xau-price" class="price-value loading">Loading…</p>
-      <p id="xau-percent"></p>
+  <div class="card gold">
+    <div class="card-tag">XAU &nbsp;·&nbsp; Spot</div>
+    <h2>Gold &nbsp;/ 1 oz</h2>
+    <p id="xau-price" class="price-value loading">Loading…</p>
+    <p id="xau-percent"></p>
+    <div class="subcards">
+      <div class="subcard">
+        <span class="subcard-label">1 oz Spot</span>
+        <span id="xau-sub-spot" class="subcard-value loading">—</span>
+        <span class="subcard-badge">Spot</span>
+      </div>
+      <div class="subcard">
+        <span class="subcard-label">1 oz Dealer</span>
+        <span id="xau-sub-dealer" class="subcard-value loading">—</span>
+        <span class="subcard-badge">+2.3%</span>
+      </div>
     </div>
-
-    <!-- XAG 1oz -->
-    <div class="card silver">
-      <div class="card-tag">XAG &nbsp;·&nbsp; Precious Metal</div>
-      <h2>Silver &nbsp;/ 1 oz</h2>
-      <p id="xag-price" class="price-value loading">Loading…</p>
-      <p id="xag-percent"></p>
-    </div>
-
-    <!-- 1kg Silver -->
-    <div class="card silver">
-      <div class="card-tag">XAG &nbsp;·&nbsp; Conversion</div>
-      <h2>Silver &nbsp;/ 1 kg</h2>
-      <div class="card-label">Latest price</div>
-      <p id="xag-latest" class="price-value loading">Loading…</p>
-    </div>
-
-    <!-- 100oz Silver -->
-    <div class="card silver">
-      <div class="card-tag">XAG &nbsp;·&nbsp; Conversion</div>
-      <h2>Silver &nbsp;/ 100 oz</h2>
-      <div class="card-label">Calculated from spot</div>
-      <p id="xag-100oz" class="price-value loading">Loading…</p>
-    </div>
-
   </div>
 
-  <div class="refresh-wrap">
-    <button onclick="loadData()">↻ &nbsp; Refresh</button>
+</div>
+
+<!-- ═══════ SILVER ═══════ -->
+<div class="section-label silver-label">Silver</div>
+<div class="grid grid-3 section-gap">
+
+  <!-- 1oz -->
+  <div class="card silver">
+    <div class="card-tag">XAG &nbsp;·&nbsp; Spot</div>
+    <h2>Silver &nbsp;/ 1 oz</h2>
+    <p id="xag-price" class="price-value loading">Loading…</p>
+    <p id="xag-percent"></p>
+    <div class="subcards">
+      <div class="subcard">
+        <span class="subcard-label">1 oz Spot</span>
+        <span id="xag-sub-spot" class="subcard-value loading">—</span>
+        <span class="subcard-badge">Spot</span>
+      </div>
+    </div>
   </div>
 
-  <div class="timestamp">Last updated: <span id="last-updated">—</span></div>
+  <!-- 1kg + markups -->
+  <div class="card silver">
+    <div class="card-tag">XAG &nbsp;·&nbsp; Conversion</div>
+    <h2>Silver &nbsp;/ 1 kg</h2>
+    <p id="xag-latest" class="price-value loading">Loading…</p>
+    <div class="markup-grid">
+      <div class="markup-tile">
+        <div class="markup-tile-label">Spot</div>
+        <div id="xag-kg-spot" class="markup-tile-value loading">—</div>
+      </div>
+      <div class="markup-tile">
+        <div class="markup-tile-label">+5%</div>
+        <div id="xag-kg-5" class="markup-tile-value loading">—</div>
+      </div>
+      <div class="markup-tile">
+        <div class="markup-tile-label">+8%</div>
+        <div id="xag-kg-8" class="markup-tile-value loading">—</div>
+      </div>
+      <div class="markup-tile">
+        <div class="markup-tile-label">+10%</div>
+        <div id="xag-kg-10" class="markup-tile-value loading">—</div>
+      </div>
+      <div class="markup-tile">
+        <div class="markup-tile-label">+15%</div>
+        <div id="xag-kg-15" class="markup-tile-value loading">—</div>
+      </div>
+    </div>
+  </div>
 
-  <script>
-    function applyPercent(elId, rawText) {
-      const el = document.getElementById(elId);
-      if (!el || !rawText) return;
+  <!-- 100oz + 10% -->
+  <div class="card silver">
+    <div class="card-tag">XAG &nbsp;·&nbsp; Conversion</div>
+    <h2>Silver &nbsp;/ 100 oz</h2>
+    <p id="xag-100oz" class="price-value loading">Loading…</p>
+    <div class="subcards">
+      <div class="subcard">
+        <span class="subcard-label">100 oz Spot</span>
+        <span id="xag-100-spot" class="subcard-value loading">—</span>
+        <span class="subcard-badge">Spot</span>
+      </div>
+      <div class="subcard">
+        <span class="subcard-label">100 oz +10%</span>
+        <span id="xag-100-10" class="subcard-value loading">—</span>
+        <span class="subcard-badge">+10%</span>
+      </div>
+    </div>
+  </div>
 
-      const num = parseFloat(rawText.replace(/[^0-9.\-]/g, ''));
-      let cls = 'neutral', display = rawText;
+</div>
 
-      if (!isNaN(num)) {
-        if (num > 0)  { cls = 'positive'; display = '+' + rawText; }
-        else if (num < 0) { cls = 'negative'; }
+<div class="refresh-wrap">
+  <button onclick="loadData()">↻ &nbsp; Refresh</button>
+</div>
+<div class="timestamp">Last updated: <span id="last-updated">—</span></div>
+
+<script>
+  const sgd = n => n.toLocaleString('en-SG', { style: 'currency', currency: 'SGD' });
+  const up  = (base, pct) => base * (1 + pct / 100);
+
+  function setLoaded(id, value) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.remove('loading');
+    el.textContent = value;
+  }
+
+  function applyPercent(elId, rawText) {
+    const el = document.getElementById(elId);
+    if (!el || !rawText) return;
+    const num = parseFloat(rawText.replace(/[^0-9.\-]/g, ''));
+    let cls = 'neutral', display = rawText;
+    if (!isNaN(num)) {
+      if (num > 0)      { cls = 'positive'; display = '+' + rawText; }
+      else if (num < 0) { cls = 'negative'; }
+    }
+    el.className = 'percent-badge ' + cls;
+    el.textContent = display;
+  }
+
+  async function loadData() {
+    try {
+      // ── Spot prices ──
+      const data1 = await fetch('/api/prices').then(r => r.json());
+
+      if (data1.spotPrices?.XAU) {
+        const xau = data1.spotPrices.XAU;
+        const spot = parseFloat(xau.value.replace(/[^0-9.]/g, ''));
+        setLoaded('xau-price',      xau.value);
+        applyPercent('xau-percent', xau.percent);
+        setLoaded('xau-sub-spot',   xau.value);
+        setLoaded('xau-sub-dealer', sgd(up(spot, 2.3)));
       }
 
-      el.className = 'percent-badge ' + cls;
-      el.textContent = display;
-    }
-
-    function setLoaded(id, value) {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.classList.remove('loading');
-      el.textContent = value;
-    }
-
-    async function loadData() {
-      try {
-        const res1 = await fetch('/api/prices');
-        const data1 = await res1.json();
-
-        if (data1.spotPrices?.XAU) {
-          setLoaded('xau-price', data1.spotPrices.XAU.value);
-          applyPercent('xau-percent', data1.spotPrices.XAU.percent);
-        }
-
-        if (data1.spotPrices?.XAG) {
-          const xag = data1.spotPrices.XAG;
-          setLoaded('xag-price', xag.value);
-          applyPercent('xag-percent', xag.percent);
-
-          const pricePerOz = parseFloat(xag.value.replace(/[^0-9.]/g, ''));
-          const price100oz = pricePerOz * 100;
-          setLoaded('xag-100oz', price100oz.toLocaleString('en-SG', { style: 'currency', currency: 'SGD' }));
-        }
-
-        const res2 = await fetch('/api/silver');
-        const data2 = await res2.json();
-
-        if (data2.dataSeries?.length > 0) {
-          const lastPoint = data2.dataSeries[data2.dataSeries.length - 1];
-          setLoaded('xag-latest', lastPoint.v.toLocaleString('en-SG', { style: 'currency', currency: 'SGD' }));
-        }
-
-        document.getElementById('last-updated').textContent =
-          new Date().toLocaleTimeString('en-SG', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-
-      } catch (err) {
-        console.error(err);
+      if (data1.spotPrices?.XAG) {
+        const xag  = data1.spotPrices.XAG;
+        const spot = parseFloat(xag.value.replace(/[^0-9.]/g, ''));
+        const s100 = spot * 100;
+        setLoaded('xag-price',      xag.value);
+        applyPercent('xag-percent', xag.percent);
+        setLoaded('xag-sub-spot',   xag.value);
+        setLoaded('xag-100oz',      sgd(s100));
+        setLoaded('xag-100-spot',   sgd(s100));
+        setLoaded('xag-100-10',     sgd(up(s100, 10)));
       }
-    }
 
-    loadData();
-  </script>
+      // ── 1kg Silver series ──
+      const data2 = await fetch('/api/silver').then(r => r.json());
+
+      if (data2.dataSeries?.length > 0) {
+        const kg = data2.dataSeries[data2.dataSeries.length - 1].v;
+        setLoaded('xag-latest',  sgd(kg));
+        setLoaded('xag-kg-spot', sgd(kg));
+        setLoaded('xag-kg-5',    sgd(up(kg,  5)));
+        setLoaded('xag-kg-8',    sgd(up(kg,  8)));
+        setLoaded('xag-kg-10',   sgd(up(kg, 10)));
+        setLoaded('xag-kg-15',   sgd(up(kg, 15)));
+      }
+
+      document.getElementById('last-updated').textContent =
+        new Date().toLocaleTimeString('en-SG', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  loadData();
+</script>
 </body>
 </html>
