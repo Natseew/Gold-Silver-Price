@@ -432,12 +432,17 @@
     <p id="xau-percent"></p>
     <div class="subcards">
       <div class="subcard">
-        <span class="subcard-label">1 oz Spot</span>
-        <span id="xau-sub-spot" class="subcard-value loading">—</span>
-        <span class="subcard-badge">Spot</span>
+        <span class="subcard-label">1 oz Spot USD</span>
+        <span id="xau-usd-spot" class="subcard-value loading">—</span>
+        <span class="subcard-badge">USD</span>
       </div>
       <div class="subcard">
-        <span class="subcard-label">1 oz Dealer</span>
+        <span class="subcard-label">1 oz Spot SGD</span>
+        <span id="xau-sub-spot" class="subcard-value loading">—</span>
+        <span class="subcard-badge">SGD</span>
+      </div>
+      <div class="subcard">
+        <span class="subcard-label">1 oz Dealer SGD</span>
         <span id="xau-sub-dealer" class="subcard-value loading">—</span>
         <span class="subcard-badge">+2.3%</span>
       </div>
@@ -458,9 +463,14 @@
     <p id="xag-percent"></p>
     <div class="subcards">
       <div class="subcard">
-        <span class="subcard-label">1 oz Spot</span>
+        <span class="subcard-label">1 oz Spot USD</span>
+        <span id="xag-usd-spot" class="subcard-value loading">—</span>
+        <span class="subcard-badge">USD</span>
+      </div>
+      <div class="subcard">
+        <span class="subcard-label">1 oz Spot SGD</span>
         <span id="xag-sub-spot" class="subcard-value loading">—</span>
-        <span class="subcard-badge">Spot</span>
+        <span class="subcard-badge">SGD</span>
       </div>
     </div>
   </div>
@@ -522,6 +532,7 @@
 
 <script>
   const sgd = n => n.toLocaleString('en-SG', { style: 'currency', currency: 'SGD' });
+  const usd = n => n.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
   const up  = (base, pct) => base * (1 + pct / 100);
 
   function setLoaded(id, value) {
@@ -581,6 +592,19 @@
         setLoaded('xag-kg-8',    sgd(up(kg,  8)));
         setLoaded('xag-kg-10',   sgd(up(kg, 10)));
         setLoaded('xag-kg-15',   sgd(up(kg, 15)));
+      }
+
+      // ── USD spot prices via gold-api.com (free, no key, CORS-enabled) ──
+      const [xauUsd, xagUsd] = await Promise.all([
+        fetch('https://api.gold-api.com/price/XAU').then(r => r.json()),
+        fetch('https://api.gold-api.com/price/XAG').then(r => r.json()),
+      ]);
+
+      if (xauUsd?.price) {
+        setLoaded('xau-usd-spot', usd(xauUsd.price));
+      }
+      if (xagUsd?.price) {
+        setLoaded('xag-usd-spot', usd(xagUsd.price));
       }
 
       document.getElementById('last-updated').textContent =
