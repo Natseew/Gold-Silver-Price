@@ -23,7 +23,7 @@
   <script>
     async function loadData() {
       try {
-        const res = await fetch('https://services.bullionstar.com/spot-chart/graph/get'); // <-- replace this
+        const res = await fetch('/api/prices'); // <-- replace this
         const data = await res.json();
 
         // Extract values
