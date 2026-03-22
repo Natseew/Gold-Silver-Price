@@ -23,6 +23,11 @@
         <p id="xag-latest">Loading...</p>
     </div>
 
+    <div>
+        <h2>100 Oz Silver</h2>
+        <p id="xag-100oz">Loading...</p>
+    </div>
+
   <button onclick="loadData()">Refresh</button>
 
     <script>
@@ -38,8 +43,20 @@
         }
 
         if (data1.spotPrices?.XAG) {
-            document.getElementById('xag-price').textContent = data1.spotPrices.XAG.value;
-            document.getElementById('xag-percent').textContent = data1.spotPrices.XAG.percent;
+            const xag = data1.spotPrices.XAG;
+            document.getElementById('xag-price').textContent = xag.value;
+            document.getElementById('xag-percent').textContent = xag.percent;
+
+            // ===== NEW: Calculate 100 oz =====
+            const pricePerOz = parseFloat(xag.value.replace(/[^0-9.]/g, ''));
+            const price100oz = pricePerOz * 100;
+
+            const formatted100oz = price100oz.toLocaleString('en-SG', {
+                style: 'currency',
+                currency: 'SGD'
+            });
+
+            document.getElementById('xag-100oz').textContent = formatted100oz;          
         }
 
         // ===== 2. Silver dataSeries =====
@@ -55,7 +72,7 @@
             });
 
             document.getElementById('xag-latest').textContent =
-            `Latest (1kg Silver): ${formatted}`;
+            `${formatted}`;
         }
 
         } catch (err) {
