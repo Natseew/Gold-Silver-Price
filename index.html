@@ -299,63 +299,56 @@
     }
 
     /* ── SPONSORED BANNER ── */
-    body { padding-bottom: 110px; } /* make room for fixed banner */
+    body { padding-bottom: 140px; } /* room for taller banner */
 
     .sponsor-banner {
       position: fixed;
       bottom: 0; left: 0; right: 0;
-      height: 90px;
+      height: 130px;           /* text strip ~36px + gif row ~90px + border */
       background: #0d0d0d;
       border-top: 1px solid #2a2a2a;
+      overflow: hidden;
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── TOP: scrolling text strip ── */
+    .banner-text-strip {
+      flex-shrink: 0;
+      height: 36px;
+      background: #141414;
+      border-bottom: 1px solid #2a2a2a;
       display: flex;
       align-items: center;
       overflow: hidden;
-      z-index: 999;
+      position: relative;
     }
 
-    .sponsor-banner::before,
-    .sponsor-banner::after {
+    /* fade edges of text strip only */
+    .banner-text-strip::before,
+    .banner-text-strip::after {
       content: '';
       position: absolute;
       top: 0; bottom: 0;
-      width: 80px;
+      width: 60px;
       z-index: 2;
       pointer-events: none;
     }
-    .sponsor-banner::before {
-      left: 0;
-      background: linear-gradient(90deg, #0d0d0d, transparent);
-    }
-    .sponsor-banner::after {
-      right: 0;
-      background: linear-gradient(270deg, #0d0d0d, transparent);
+    .banner-text-strip::before { left: 0;  background: linear-gradient(90deg,  #141414, transparent); }
+    .banner-text-strip::after  { right: 0; background: linear-gradient(270deg, #141414, transparent); }
+
+    /* ── BOTTOM: gif row ── */
+    .banner-gif-row {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
     }
 
-    .banner-gif {
-      position: absolute;
-      left: 0; top: 0; bottom: 0;
-      width: 100%;
-      display: flex;
-      align-items: center;
-      gap: 0;
-    }
-
-    .banner-gif img {
-      height: 80px;
-      width: auto;
-      flex-shrink: 0;
-      object-fit: cover;
-      image-rendering: auto;
-      /* tile the gif horizontally */
-      position: absolute;
-      top: 5px;
-    }
-
-    /* multiple gif copies tiled */
     .gif-tile {
       position: absolute;
-      top: 5px;
-      height: 78px;
+      top: 4px;
+      height: 82px;
       width: auto;
     }
 
@@ -365,8 +358,10 @@
       white-space: nowrap;
       animation: banner-scroll 18s linear infinite;
       position: relative;
-      z-index: 3;
+      z-index: 1;
       pointer-events: none;
+      height: 100%;
+      align-items: center;
     }
 
     @keyframes banner-scroll {
@@ -376,15 +371,16 @@
 
     .banner-text-unit {
       display: inline-flex;
-      align-items: center;
-      gap: 20px;
+      align-items: baseline;
+      gap: 16px;
       padding-right: 60px;
     }
 
     .banner-coin {
-      font-size: 1.1rem;
+      font-size: 1rem;
       animation: spin-coin 1s linear infinite;
       display: inline-block;
+      line-height: 1;
     }
     @keyframes spin-coin {
       0%   { transform: rotateY(0deg); }
@@ -393,26 +389,24 @@
 
     .banner-main-text {
       font-family: var(--display);
-      font-size: 1.6rem;
+      font-size: 1.3rem;
       letter-spacing: 0.15em;
-      color: var(--gold);
-      text-shadow: 0 0 18px #c9a84c88, 0 0 40px #c9a84c33;
+      color: #ffffff;
+      text-shadow: 0 1px 8px rgba(0,0,0,0.9), 0 0 20px rgba(255,255,255,0.15);
     }
 
     .banner-sub-text {
       font-family: var(--mono);
-      font-size: 0.6rem;
-      letter-spacing: 0.2em;
-      color: var(--text-muted);
+      font-size: 0.58rem;
+      letter-spacing: 0.18em;
+      color: #aaaaaa;
       text-transform: uppercase;
-      align-self: flex-end;
-      padding-bottom: 4px;
     }
 
     .banner-disclaimer {
       font-family: var(--mono);
-      font-size: 0.55rem;
-      color: #333;
+      font-size: 0.52rem;
+      color: #666;
       letter-spacing: 0.1em;
     }
   </style>
@@ -603,7 +597,7 @@
   (function () {
     const canvas = document.getElementById('rain-canvas');
     const ctx    = canvas.getContext('2d');
-    const BANNER_H = 90;
+    const BANNER_H = 130;
 
     const SYMBOLS = [
       '💵','💴','💶','💷',   // banknotes
@@ -693,73 +687,77 @@
 <!-- ═══ SPONSORED BANNER ═══ -->
 <div class="sponsor-banner">
 
-  <!-- tiled gif background -->
-  <img class="gif-tile" style="left:-10px"  src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
-  <img class="gif-tile" style="left:90px"   src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
-  <img class="gif-tile" style="left:190px"  src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
-  <img class="gif-tile" style="left:290px"  src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
-  <img class="gif-tile" style="left:390px"  src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
-  <img class="gif-tile" style="left:490px"  src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
-  <img class="gif-tile" style="left:590px"  src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
-  <img class="gif-tile" style="left:690px"  src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
-  <img class="gif-tile" style="left:790px"  src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
-  <img class="gif-tile" style="left:890px"  src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
-  <img class="gif-tile" style="left:990px"  src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
-  <img class="gif-tile" style="left:1090px" src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
-  <img class="gif-tile" style="left:1190px" src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
-  <img class="gif-tile" style="left:1290px" src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
-  <img class="gif-tile" style="left:1390px" src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
-  <img class="gif-tile" style="left:1490px" src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
-  <img class="gif-tile" style="left:1590px" src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
-  <img class="gif-tile" style="left:1690px" src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
-  <img class="gif-tile" style="left:1790px" src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
+  <!-- TOP: scrolling text strip -->
+  <div class="banner-text-strip">
+    <div class="banner-track">
+      <!-- first copy -->
+      <span class="banner-text-unit">
+        <span class="banner-coin">🪙</span>
+        <span class="banner-main-text">SPONSORED BY NATHANIEL</span>
+        <span class="banner-sub-text">the guy who definitely knows about gold</span>
+        <span class="banner-disclaimer">· not financial advice · not Nathaniel's money · results may vary ·</span>
+        <span class="banner-coin">💸</span>
+      </span>
+      <span class="banner-text-unit">
+        <span class="banner-coin">🤑</span>
+        <span class="banner-main-text">NATHANIEL PAID FOR THIS*</span>
+        <span class="banner-sub-text">*he did not pay for this</span>
+        <span class="banner-disclaimer">· past performance ≠ future gains · Nathaniel is not a bank · please don't sue ·</span>
+        <span class="banner-coin">🪙</span>
+      </span>
+      <span class="banner-text-unit">
+        <span class="banner-coin">💰</span>
+        <span class="banner-main-text">THANKS NATHANIEL. VERY COOL.</span>
+        <span class="banner-sub-text">truly a visionary of our time</span>
+        <span class="banner-disclaimer">· 0 sloths were harmed · Nathaniel eats well · may contain traces of hubris ·</span>
+        <span class="banner-coin">🤑</span>
+      </span>
+      <!-- second copy (seamless loop) -->
+      <span class="banner-text-unit">
+        <span class="banner-coin">🪙</span>
+        <span class="banner-main-text">SPONSORED BY NATHANIEL</span>
+        <span class="banner-sub-text">the guy who definitely knows about gold</span>
+        <span class="banner-disclaimer">· not financial advice · not Nathaniel's money · results may vary ·</span>
+        <span class="banner-coin">💸</span>
+      </span>
+      <span class="banner-text-unit">
+        <span class="banner-coin">🤑</span>
+        <span class="banner-main-text">NATHANIEL PAID FOR THIS*</span>
+        <span class="banner-sub-text">*he did not pay for this</span>
+        <span class="banner-disclaimer">· past performance ≠ future gains · Nathaniel is not a bank · please don't sue ·</span>
+        <span class="banner-coin">🪙</span>
+      </span>
+      <span class="banner-text-unit">
+        <span class="banner-coin">💰</span>
+        <span class="banner-main-text">THANKS NATHANIEL. VERY COOL.</span>
+        <span class="banner-sub-text">truly a visionary of our time</span>
+        <span class="banner-disclaimer">· 0 sloths were harmed · Nathaniel eats well · may contain traces of hubris ·</span>
+        <span class="banner-coin">🤑</span>
+      </span>
+    </div>
+  </div>
 
-  <!-- scrolling text — duplicated so it loops seamlessly -->
-  <div class="banner-track">
-    <!-- first copy -->
-    <span class="banner-text-unit">
-      <span class="banner-coin">🪙</span>
-      <span class="banner-main-text">SPONSORED BY NATHANIEL</span>
-      <span class="banner-sub-text">the guy who definitely knows about gold</span>
-      <span class="banner-disclaimer">· not financial advice · not Nathaniel's money · results may vary ·</span>
-      <span class="banner-coin">💸</span>
-    </span>
-    <span class="banner-text-unit">
-      <span class="banner-coin">🤑</span>
-      <span class="banner-main-text">NATHANIEL PAID FOR THIS*</span>
-      <span class="banner-sub-text">*he did not pay for this</span>
-      <span class="banner-disclaimer">· past performance ≠ future gains · Nathaniel is not a bank · please don't sue ·</span>
-      <span class="banner-coin">🪙</span>
-    </span>
-    <span class="banner-text-unit">
-      <span class="banner-coin">💰</span>
-      <span class="banner-main-text">THANKS NATHANIEL. VERY COOL.</span>
-      <span class="banner-sub-text">truly a visionary of our time</span>
-      <span class="banner-disclaimer">· 0 sloths were harmed · Nathaniel eats well · may contain traces of hubris ·</span>
-      <span class="banner-coin">🤑</span>
-    </span>
-    <!-- second copy (seamless loop) -->
-    <span class="banner-text-unit">
-      <span class="banner-coin">🪙</span>
-      <span class="banner-main-text">SPONSORED BY NATHANIEL</span>
-      <span class="banner-sub-text">the guy who definitely knows about gold</span>
-      <span class="banner-disclaimer">· not financial advice · not Nathaniel's money · results may vary ·</span>
-      <span class="banner-coin">💸</span>
-    </span>
-    <span class="banner-text-unit">
-      <span class="banner-coin">🤑</span>
-      <span class="banner-main-text">NATHANIEL PAID FOR THIS*</span>
-      <span class="banner-sub-text">*he did not pay for this</span>
-      <span class="banner-disclaimer">· past performance ≠ future gains · Nathaniel is not a bank · please don't sue ·</span>
-      <span class="banner-coin">🪙</span>
-    </span>
-    <span class="banner-text-unit">
-      <span class="banner-coin">💰</span>
-      <span class="banner-main-text">THANKS NATHANIEL. VERY COOL.</span>
-      <span class="banner-sub-text">truly a visionary of our time</span>
-      <span class="banner-disclaimer">· 0 sloths were harmed · Nathaniel eats well · may contain traces of hubris ·</span>
-      <span class="banner-coin">🤑</span>
-    </span>
+  <!-- BOTTOM: tiled gif row -->
+  <div class="banner-gif-row">
+    <img class="gif-tile" style="left:-10px"  src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
+    <img class="gif-tile" style="left:90px"   src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
+    <img class="gif-tile" style="left:190px"  src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
+    <img class="gif-tile" style="left:290px"  src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
+    <img class="gif-tile" style="left:390px"  src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
+    <img class="gif-tile" style="left:490px"  src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
+    <img class="gif-tile" style="left:590px"  src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
+    <img class="gif-tile" style="left:690px"  src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
+    <img class="gif-tile" style="left:790px"  src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
+    <img class="gif-tile" style="left:890px"  src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
+    <img class="gif-tile" style="left:990px"  src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
+    <img class="gif-tile" style="left:1090px" src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
+    <img class="gif-tile" style="left:1190px" src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
+    <img class="gif-tile" style="left:1290px" src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
+    <img class="gif-tile" style="left:1390px" src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
+    <img class="gif-tile" style="left:1490px" src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
+    <img class="gif-tile" style="left:1590px" src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
+    <img class="gif-tile" style="left:1690px" src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
+    <img class="gif-tile" style="left:1790px" src="https://i.pinimg.com/originals/ea/63/b5/ea63b5feea532b023a99ee4ab6db9ca5.gif" alt="">
   </div>
 
 </div>
